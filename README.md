@@ -5,11 +5,14 @@
 ## Project Description
 This project predicts the probability of churning using the bank dataset
 
+
 ## Files and data description
-Overview of the files and data present in the root directory. 
+The entry file is `churn_library.py`. It will run all the necessary functions and will create a log under logs/results.log.
+
+For running the tests, just need to run `pytest`. Pytest will complain if data or files are not present, also will assert basic aspects of the df such as column names.
+
+As this project was build locally, I collected all required packages using a conda environment. See and install `requirements.txt` for replicating it in your machine. (pip list -format -freeze > requirements.txt)
 
 ## Running Files
-How do you run your files? What should happen when you run your files?
-
-
-
+You need to run `pytest` for testing.
+`python churn_library.py`
