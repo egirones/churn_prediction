@@ -1,9 +1,9 @@
 # Predict Customer Churn
 
-- Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
+- Project **Predict Customer Churn** using pytest, pip8.
 
 ## Project Description
-Your project description here.
+This project predicts the probability of churning using the bank dataset
 
 ## Files and data description
 Overview of the files and data present in the root directory. 

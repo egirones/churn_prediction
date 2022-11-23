@@ -73,7 +73,7 @@ keep_cols = ['Customer_Age',
 logging.basicConfig(filename='./logs/results.log',
         level=logging.INFO,
         filemode='w',
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S')
 
 
@@ -107,48 +107,30 @@ def perform_eda(df):
         '''
 
         # for each column, check if it exists. If not, raise error 
-        try:
-                plt.figure(figsize=(20,10)) 
-                df['Churn'].hist()
-                plt.title('Churn: Yes or No')
-                plt.savefig('./images/churn.jpeg');
-                logging.info('Churn figure made')
-        except KeyError:
-                logging.info('Column churn not found')
-        
-        try:
-                plt.figure(figsize=(20,10)) 
-                df['Customer_Age'].hist()
-                plt.title('Age of customers')
-                plt.savefig('./images/customer_age.jpeg');
-                logging.info('Customer_made figure made')
-        except KeyError:
-                logging.info('Column Customer_made not found')
-        
-        try:
-                plt.figure(figsize=(20,10)) 
-                df.Marital_Status.value_counts('normalize').plot(kind='bar')
-                plt.title('Marital status')
-                plt.savefig('./images/martital_status.jpeg');
-                logging.info('Marital_Status figure made')
-        except KeyError:
-                logging.info('Marital_Status column not found')
-                        
-        try:
-                plt.figure(figsize=(20,10)) 
-                sns.histplot(df['Total_Trans_Ct'], stat='density', kde=True)
-                plt.title('Total Transactions')
-                plt.savefig('./images/trans_ct.jpeg');
-                logging.info('Total_Trans_Ct figure made')
-        except KeyError:
-                logging.info('Total_Trans_Ct column not found')
+        plt.figure(figsize=(20,10)) 
+        df['Churn'].hist()
+        plt.title('Churn: Yes or No')
+        plt.savefig('./images/churn.jpeg');
+
+        plt.figure(figsize=(20,10)) 
+        df['Customer_Age'].hist()
+        plt.title('Age of customers')
+        plt.savefig('./images/customer_age.jpeg');
+
+        plt.figure(figsize=(20,10)) 
+        df.Marital_Status.value_counts('normalize').plot(kind='bar')
+        plt.title('Marital status')
+        plt.savefig('./images/marital_status.jpeg');
+
+        plt.figure(figsize=(20,10)) 
+        sns.histplot(df['Total_Trans_Ct'], stat='density', kde=True)
+        plt.title('Total Transactions')
+        plt.savefig('./images/trans_ct.jpeg');
                         
         plt.figure(figsize=(20,10)) 
         sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths = 2)
         plt.title('Heatmap of all variables')
         plt.savefig('./images/heatmap_variables.jpeg');
-        logging.info('Heatma figure made')
-
 
 def encoder_helper(df, category_lst=cat_columns, response='Churn'):
         
@@ -208,8 +190,8 @@ def classification_report_image(real_values, predictions, name_figure):
                 None
         '''
         dfx = pd.DataFrame(classification_report(real_values, predictions, output_dict=True))
-        name_figure_path = f'./images/{name_figure}'
-        dfi.export(dfx, name_figure)
+        name_figure_path = f'./images/{name_figure}.png'
+        dfi.export(dfx, name_figure_path)
         logging.info(f'Image {name_figure_path} created')        
         return 
 
@@ -255,9 +237,17 @@ def plot_lrc(X_test, y_test, lrc_path='./models/logistic_model.pkl', rf_path='./
         rfc_disp = plot_roc_curve(rfc_model, X_test, y_test, ax=ax, alpha=0.8)
         lrc_plot.plot(ax=ax, alpha=0.8)
         plt.savefig(image_pth);
+        logging.info(f'LRC plot saved at {image_pth}')
         return
 
-def plot_importances(X, cv_rfc_pth='./models/rfc_model.pkl', pth='./images/importances.jpeg'):
+def plot_importances(X, cv_rfc_pth='./models/rfc_model.pkl', image_pth='./images/importances.jpeg'):
+        '''
+        plot importances
+        input: 
+                X: df explanatory columngs
+                cv_rfc_pth: path to the model
+                pth: path to save image
+        '''
         cv_rfc = joblib.load(cv_rfc_pth)
         importances = cv_rfc.feature_importances_
         indices = np.argsort(importances)[::-1]
@@ -267,7 +257,8 @@ def plot_importances(X, cv_rfc_pth='./models/rfc_model.pkl', pth='./images/impor
         plt.ylabel('Importance')
         plt.bar(range(X.shape[1]), importances[indices])
         plt.xticks(range(X.shape[1]), names, rotation=90)
-        plt.savefig(pth);
+        plt.savefig(image_pth);
+        logging.info(f'Importance plot saved at {image_pth}')
         return 
 
 
@@ -303,20 +294,19 @@ def train_models(X_train, X_test, y_train, y_test):
         logging.info('LRC done')
 
         # get classification images 
-        classification_report_image(y_test, y_test_preds_rf, 'test_results')
-        classification_report_image(y_train, y_train_preds_rf, 'train_results')
-        classification_report_image(y_test, y_test_preds_lr, 'logistic regression_results')
-        classification_report_image(y_train, y_train_preds_lr, 'train_results')
+        classification_report_image(y_test, y_test_preds_rf, 'test_results_rf')
+        classification_report_image(y_train, y_train_preds_rf, 'train_results_rf')
+        classification_report_image(y_test, y_test_preds_lr, 'test_results_lr')
+        classification_report_image(y_train, y_train_preds_lr, 'test_results_lr')
 
         # save models
         joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
         joblib.dump(lrc, './models/logistic_model.pkl')
+        logging.info('Models saved')
 
         # returns the plot
         plot_lrc(X_test, y_test)
         return
-
-
 
 if __name__ == "__main__":
         data_file = "./data/bank_data.csv"
