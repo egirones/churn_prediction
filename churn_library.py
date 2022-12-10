@@ -94,7 +94,7 @@ def perform_eda(df_eda):
     plt.savefig('./images/heatmap_variables.jpeg')
 
 
-def encoder_helper(df_input, category_lst=cat_columns, response='Churn'):
+def encoder_helper(df_input, category_list=cat_columns, response='Churn'):
     '''
     helper function to turn each categorical column
     into a new column with propotion of churn
@@ -109,11 +109,11 @@ def encoder_helper(df_input, category_lst=cat_columns, response='Churn'):
     output:
             df: pandas dataframe with new columns for
     '''
-    for category in category_lst:
+    for category in category_list:
         try:
             lista = []
-            groups = df.groupby(category).mean()['Churn']
-            for val in df[category]:
+            groups = df_input.groupby(category).mean()['Churn']
+            for val in df_input[category]:
                 lista.append(groups.loc[val])
             new_column_name = f'{category}_{response}'
             df_input[new_column_name] = lista
@@ -308,5 +308,5 @@ if __name__ == "__main__":
     perform_eda(df)
     df = encoder_helper(df)
     x_train, x_test, y_train, y_test = perform_feature_engineering(df)
-    train_models(x_train, x_test, y_train, y_test)
-    plot_importances(df[keep_cols])
+    # train_models(x_train, x_test, y_train, y_test)
+    # plot_importances(df[keep_cols])
