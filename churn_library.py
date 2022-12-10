@@ -129,6 +129,7 @@ def perform_feature_engineering(
         response='Churn',
         columns_to_keep=keep_cols):
     '''
+    performs feature engineering
     input:
             df: pandas dataframe
             response: string of response name [optional
@@ -142,10 +143,10 @@ def perform_feature_engineering(
     '''
     X = df_input[columns_to_keep]
     y = df_input[response]
-    x_train, x_test, y_train, y_test = train_test_split(
+    x_train_fe, x_test_fe, y_train_fe, y_test_fe = train_test_split(
         X, y, test_size=0.3, random_state=42)
     logging.info('Train test split done')
-    return x_train, x_test, y_train, y_test
+    return x_train_fe, x_test_fe, y_train_fe, y_test_fe
 
 
 def classification_report_image(
@@ -153,16 +154,25 @@ def classification_report_image(
     train_result,
     test_result,
     pth):
+    '''
+    creates a neew figure
+    input:
+        title: of figure
+        train_result: a classification_text for train result
+        test_result: a classification_text for test result
+        pth: pat the save the figure            
+    output:
+        nothing
+    '''
 
     train_title = f'{title} - Train'
     test_title = f'{title} - Test'
-    
     plt.figure()
     plt.rc('figure', figsize=(5, 5))
     plt.text(0.01, 1.25, str(train_title), {'fontsize': 10}, fontproperties = 'monospace')
-    plt.text(0.01, 0.05, str(train_result), {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
+    plt.text(0.01, 0.05, str(train_result), {'fontsize': 10}, fontproperties = 'monospace')
     plt.text(0.01, 0.6, str(test_title), {'fontsize': 10}, fontproperties = 'monospace')
-    plt.text(0.01, 0.7, str(test_result), {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
+    plt.text(0.01, 0.7, str(test_result), {'fontsize': 10}, fontproperties = 'monospace')
     plt.savefig(pth)
 
 def feature_importance_plot(
@@ -270,13 +280,11 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
     y_train_preds_rf = cv_rfc.best_estimator_.predict(x_train_input)
     y_test_preds_rf = cv_rfc.best_estimator_.predict(x_test_input)
     logging.info('RFC done')
-    
 
     rf_train_report = classification_report(y_train, y_train_preds_rf)
     rf_test_report = classification_report(y_test, y_test_preds_rf)
     classification_report_image("Random Forest Train", rf_train_report, rf_test_report, 'images/rf_results.jpeg')
     
-
     y_train_preds_lr = lrc.predict(x_train_input)
     y_test_preds_lr = lrc.predict(x_test_input)
     logging.info('LRC done')
@@ -284,10 +292,6 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
     lr_train_report = classification_report(y_train, y_train_preds_lr)
     lr_test_report = classification_report(y_test, y_test_preds_lr)
     classification_report_image("Logistic Regression", lr_train_report, lr_test_report, 'images/lr_results.jpeg')
-
-
-
-
 
     # save models
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
