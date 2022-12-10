@@ -14,7 +14,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-import dataframe_image as dfi
 import joblib
 import pandas as pd
 import numpy as np
@@ -52,7 +51,7 @@ def import_data(pth):
         dfx['Churn'] = dfx['Attrition_Flag'].apply(
             lambda val: 0 if val == "Existing Customer" else 1)
         logging.info('File loaded')
-        return df
+        return dfx
     except FileNotFoundError:
         logging.error("Path to file: %s not found" % pth)
         raise FileNotFoundError(
@@ -149,25 +148,22 @@ def perform_feature_engineering(
     return x_train, x_test, y_train, y_test
 
 
-def classification_report_image(real_values, predictions, name_figure):
-    '''
-    produces classification report for training and testing 
-    results and stores report as image in images folder
-    input:
-            real_values: response values
-            predictions:  predicted_values
-            name_figure: name of figure
-    output:
-            None
-    '''
-    dfx = pd.DataFrame(
-        classification_report(
-            real_values,
-            predictions,
-            output_dict=True))
-    name_figure_path = f'./images/{name_figure}.png'
-    dfi.export(dfx, name_figure_path)
-    logging.info(f'Image {name_figure_path} created')
+def classification_report_image(
+    title,
+    train_result,
+    test_result,
+    pth):
+
+    train_title = f'{title} - Train'
+    test_title = f'{title} - Test'
+    
+    plt.figure()
+    plt.rc('figure', figsize=(5, 5))
+    plt.text(0.01, 1.25, str(train_title), {'fontsize': 10}, fontproperties = 'monospace')
+    plt.text(0.01, 0.05, str(train_result), {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
+    plt.text(0.01, 0.6, str(test_title), {'fontsize': 10}, fontproperties = 'monospace')
+    plt.text(0.01, 0.7, str(test_result), {'fontsize': 10}, fontproperties = 'monospace') # approach improved by OP -> monospace!
+    plt.savefig(pth)
 
 def feature_importance_plot(
         importances,
@@ -261,7 +257,7 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
     lrc = LogisticRegression(solver='lbfgs', max_iter=3000)
     param_grid = {
         'n_estimators': [200, 500],
-        'max_features': ['auto', 'sqrt'],
+        'max_features': ['sqrt'],
         'max_depth': [4, 5, 100],
         'criterion': ['gini', 'entropy']
     }
@@ -269,19 +265,29 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
     cv_rfc.fit(x_train_input, y_train_input)
 
     lrc.fit(x_train_input, y_train_input)
+
+
     y_train_preds_rf = cv_rfc.best_estimator_.predict(x_train_input)
     y_test_preds_rf = cv_rfc.best_estimator_.predict(x_test_input)
     logging.info('RFC done')
+    
+
+    rf_train_report = classification_report(y_train, y_train_preds_rf)
+    rf_test_report = classification_report(y_test, y_test_preds_rf)
+    classification_report_image("Random Forest Train", rf_train_report, rf_test_report, 'images/rf_results.jpeg')
+    
 
     y_train_preds_lr = lrc.predict(x_train_input)
     y_test_preds_lr = lrc.predict(x_test_input)
     logging.info('LRC done')
 
-    # get classification images
-    classification_report_image(y_test_input, y_test_preds_rf, 'test_results_rf')
-    classification_report_image(y_train_input, y_train_preds_rf, 'train_results_rf')
-    classification_report_image(y_test_input, y_test_preds_lr, 'test_results_lr')
-    classification_report_image(y_train_input, y_train_preds_lr, 'test_results_lr')
+    lr_train_report = classification_report(y_train, y_train_preds_lr)
+    lr_test_report = classification_report(y_test, y_test_preds_lr)
+    classification_report_image("Logistic Regression", lr_train_report, lr_test_report, 'images/lr_results.jpeg')
+
+
+
+
 
     # save models
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
