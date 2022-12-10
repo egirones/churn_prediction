@@ -50,10 +50,8 @@ def import_data(pth):
         dfx = pd.read_csv(pth)
         dfx['Churn'] = dfx['Attrition_Flag'].apply(
             lambda val: 0 if val == "Existing Customer" else 1)
-        logging.info('File loaded')
         return dfx
     except FileNotFoundError:
-        logging.error("Path to file: %s not found" % pth)
         raise FileNotFoundError(
             'File not found, need one valid path to continue')
 
@@ -118,8 +116,8 @@ def encoder_helper(df_input, category_list=cat_columns, response='Churn'):
             new_column_name = f'{category}_{response}'
             df_input[new_column_name] = lista
         except KeyError:
-            logging.error('Category %s not found' % category)
-    logging.info('All categorical columns converted!')
+            raise KeyError()(
+            'Categories cannot be converted')
     df_output = df_input
     return df_output
 
@@ -145,7 +143,6 @@ def perform_feature_engineering(
     y = df_input[response]
     x_train_fe, x_test_fe, y_train_fe, y_test_fe = train_test_split(
         X, y, test_size=0.3, random_state=42)
-    logging.info('Train test split done')
     return x_train_fe, x_test_fe, y_train_fe, y_test_fe
 
 
@@ -224,7 +221,6 @@ def plot_lrc(
     rfc_disp = plot_roc_curve(rfc_model, x_test_input, y_test_input, ax=ax, alpha=0.8)
     lrc_plot.plot(ax=ax, alpha=0.8)
     plt.savefig(image_pth)
-    logging.info(f'LRC plot saved at {image_pth}')
 
 
 def plot_importances(x_columns, cv_rfc_pth='./models/rfc_model.pkl',
@@ -248,7 +244,6 @@ def plot_importances(x_columns, cv_rfc_pth='./models/rfc_model.pkl',
     plt.bar(range(x_columns.shape[1]), importances[indices])
     plt.xticks(range(x_columns.shape[1]), names, rotation=90)
     plt.savefig(image_pth)
-    logging.info(f'Importance plot saved at {image_pth}')
 
 
 def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
@@ -279,7 +274,6 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
 
     y_train_preds_rf = cv_rfc.best_estimator_.predict(x_train_input)
     y_test_preds_rf = cv_rfc.best_estimator_.predict(x_test_input)
-    logging.info('RFC done')
 
     rf_train_report = classification_report(y_train, y_train_preds_rf)
     rf_test_report = classification_report(y_test, y_test_preds_rf)
@@ -287,7 +281,6 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
     
     y_train_preds_lr = lrc.predict(x_train_input)
     y_test_preds_lr = lrc.predict(x_test_input)
-    logging.info('LRC done')
 
     lr_train_report = classification_report(y_train, y_train_preds_lr)
     lr_test_report = classification_report(y_test, y_test_preds_lr)
@@ -296,7 +289,6 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
     # save models
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
     joblib.dump(lrc, './models/logistic_model.pkl')
-    logging.info('Models saved')
 
     # returns the plot
     plot_lrc(x_test_input, y_test_input)
@@ -308,5 +300,5 @@ if __name__ == "__main__":
     perform_eda(df)
     df = encoder_helper(df)
     x_train, x_test, y_train, y_test = perform_feature_engineering(df)
-    # train_models(x_train, x_test, y_train, y_test)
-    # plot_importances(df[keep_cols])
+    train_models(x_train, x_test, y_train, y_test)
+    plot_importances(df[keep_cols])

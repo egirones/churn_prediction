@@ -9,12 +9,7 @@ import pytest
 import joblib
 import churn_library as cls
 
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s')
-
+pytest.main()
 
 def test_import():
     '''
@@ -23,6 +18,7 @@ def test_import():
     '''
     try:
         df_test = cls.import_data("./data/bank_data.csv")
+        logging.info("File loaded")
     except FileNotFoundError as err:
         logging.error("Testing import_eda: The file wasn't found")
         raise err
@@ -30,6 +26,7 @@ def test_import():
     try:
         assert df_test.shape[0] > 0
         assert df_test.shape[1] > 0
+        logging.info('DF shape is good')
     except AssertionError as err:
         logging.error(
             "Testing import_data: The file doesn't appear to have rows and columns")
@@ -53,7 +50,11 @@ def test_eda(file_name):
     '''
     assert if dataf file exists
     '''
-    assert exists(file_name)
+    try: 
+        assert exists(file_name)
+    except AssertionError as err:
+        logging.error("Cannot create file %s", file_name)  
+    logging.info("Image %s in folder", file_name)
 
 
 # assert if all columns are present in the new df
@@ -74,8 +75,10 @@ def test_encoder_helper(column_name):
     '''
     df_test = pytest.df_test
     df_test = cls.encoder_helper(df_test)
-    assert column_name in df_test.columns
-    
+    try:
+        assert column_name in df_test.columns
+    except AssertionError as err:
+        logging.error("Column cannot be created")
     return df_test
 
 
@@ -84,8 +87,12 @@ def test_perform_feature_engineering():
     test perform_feature_engineering
     '''
     df_test = pytest.df_test
-    assert cls.perform_feature_engineering(df_test) is not None
-    
+    try:
+        assert cls.perform_feature_engineering(df_test) is not None
+    except AssertionError as err:
+        logging.error("Cannot perform feature engineering")
+    logging.info("Feature engineering performed")
+
 models = ['./models/rfc_model.pkl', './models/logistic_model.pkl']
 
 
@@ -94,7 +101,11 @@ def test_load_models(model):
     '''
     assert if the models in pkl format exist
     '''
-    assert joblib.load(model)
+    try:
+        assert joblib.load(model)
+    except AssertionError as err:
+        logging.error("Models not found")
 
+logging.info("All passed!")
 # if __name__ == "__main__":
 # 	pass

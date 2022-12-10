@@ -14,5 +14,5 @@ For running the tests, just need to run `pytest`. Pytest will complain if data o
 As this project was build locally, I collected all required packages using a conda environment. See and install `requirements.txt` for replicating it in your machine. (pip list -format -freeze > requirements.txt)
 
 ## Running Files
-You need to run `pytest` for testing.
+You need to run `pytest` for testing, if you run `python test_churn_script_logging.py` you'll see the log file will be populated
 `python churn_library.py`
