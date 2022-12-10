@@ -191,8 +191,8 @@ def perform_feature_engineering(
 
 def classification_report_image(real_values, predictions, name_figure):
     '''
-    produces classification report for training and testing results and stores report as image
-    in images folder
+    produces classification report for training and testing 
+    results and stores report as image in images folder
     input:
             real_values: response values
             predictions:  predicted_values

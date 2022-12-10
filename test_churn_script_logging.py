@@ -18,7 +18,8 @@ logging.basicConfig(
 
 def test_import():
     '''
-    test data import - this example is completed for you to assist with the other test functions
+    test data import - this example is completed for 
+    you to assist with the other test functions
     '''
     try:
         df = cls.import_data("./data/bank_data.csv")
@@ -47,9 +48,9 @@ list_figures = ['./images/churn.jpeg',
 
 @pytest.mark.parametrize('file_name', list_figures)
 def test_eda(file_name):
-	'''
-	assert if dataf file exists
-	'''
+    '''
+    assert if dataf file exists
+    '''
 	assert exists(file_name)
 
 
