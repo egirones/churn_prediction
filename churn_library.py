@@ -69,27 +69,27 @@ def perform_eda(df_eda):
     plt.figure(figsize=(20, 10))
     df_eda['Churn'].hist()
     plt.title('Churn: Yes or No')
-    plt.savefig('./images/churn.jpeg')
+    plt.savefig('./images/eda/churn.jpeg')
 
     plt.figure(figsize=(20, 10))
     df_eda['Customer_Age'].hist()
     plt.title('Age of customers')
-    plt.savefig('./images/customer_age.jpeg')
+    plt.savefig('./images/eda/customer_age.jpeg')
 
     plt.figure(figsize=(20, 10))
     df_eda.Marital_Status.value_counts('normalize').plot(kind='bar')
     plt.title('Marital status')
-    plt.savefig('./images/marital_status.jpeg')
+    plt.savefig('./images/eda/marital_status.jpeg')
 
     plt.figure(figsize=(20, 10))
     sns.histplot(df_eda['Total_Trans_Ct'], stat='density', kde=True)
     plt.title('Total Transactions')
-    plt.savefig('./images/trans_ct.jpeg')
+    plt.savefig('./images/eda/trans_ct.jpeg')
 
     plt.figure(figsize=(20, 10))
     sns.heatmap(df_eda.corr(), annot=False, cmap='Dark2_r', linewidths=2)
     plt.title('Heatmap of all variables')
-    plt.savefig('./images/heatmap_variables.jpeg')
+    plt.savefig('./images/eda/heatmap_variables.jpeg')
 
 
 def encoder_helper(df_input, category_list=cat_columns, response='Churn'):
@@ -175,7 +175,7 @@ def classification_report_image(
 def feature_importance_plot(
         importances,
         x_input,
-        pth='./images/feature_importance.jpeg'):
+        pth='./images/results/feature_importance.jpeg'):
     '''
     creates and stores the feature importances in pth
     input:
@@ -200,7 +200,7 @@ def plot_lrc(
         y_test_input,
         lrc_path='./models/logistic_model.pkl',
         rf_path='./models/rfc_model.pkl',
-        image_pth='./images/lrc_plot.jpeg'):
+        image_pth='./images/results/lrc_plot.jpeg'):
     '''
     return plot LRC
     input:
@@ -224,7 +224,7 @@ def plot_lrc(
 
 
 def plot_importances(x_columns, cv_rfc_pth='./models/rfc_model.pkl',
-                     image_pth='./images/importances.jpeg'):
+                     image_pth='./images/results/importances.jpeg'):
     '''
     plot importances
     input:
@@ -277,14 +277,14 @@ def train_models(x_train_input, x_test_input, y_train_input, y_test_input):
 
     rf_train_report = classification_report(y_train, y_train_preds_rf)
     rf_test_report = classification_report(y_test, y_test_preds_rf)
-    classification_report_image("Random Forest Train", rf_train_report, rf_test_report, 'images/rf_results.jpeg')
+    classification_report_image("Random Forest Train", rf_train_report, rf_test_report, 'images/results/rf_results.jpeg')
     
     y_train_preds_lr = lrc.predict(x_train_input)
     y_test_preds_lr = lrc.predict(x_test_input)
 
     lr_train_report = classification_report(y_train, y_train_preds_lr)
     lr_test_report = classification_report(y_test, y_test_preds_lr)
-    classification_report_image("Logistic Regression", lr_train_report, lr_test_report, 'images/lr_results.jpeg')
+    classification_report_image("Logistic Regression", lr_train_report, lr_test_report, 'images/results/lr_results.jpeg')
 
     # save models
     joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
