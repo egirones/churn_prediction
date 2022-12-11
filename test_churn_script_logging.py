@@ -35,13 +35,13 @@ def test_import():
     return df_test
 
 
-list_figures = ['./images/churn.jpeg',
-                './images/customer_age.jpeg',
-                './images/marital_status.jpeg',
-                './images/trans_ct.jpeg',
-                './images/heatmap_variables.jpeg',
-                './images/lr_results.jpeg',
-                './images/rf_results.jpeg'
+list_figures = ['./images/eda/churn.jpeg',
+                './images/eda/customer_age.jpeg',
+                './images/eda/marital_status.jpeg',
+                './images/eda/trans_ct.jpeg',
+                './images/eda/heatmap_variables.jpeg',
+                './images/results/lr_results.jpeg',
+                './images/results/rf_results.jpeg'
                 ]
 
 
